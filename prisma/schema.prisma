@@ -1,0 +1,127 @@
+// 마이TCG — Prisma 스키마
+// 개발: SQLite. 프로덕션 전환 시 provider="postgresql"로 변경하고
+// enum/jsonb 타입을 도입 (현재는 SQLite 호환을 위해 String 사용).
+// 문서: docs/DATABASE_SCHEMA.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(uuid())
+  nickname        String?
+  socialId        String?  @unique
+  profileImageUrl String?
+  isBanned        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  cards   Card[]
+  reports Report[]
+}
+
+model Card {
+  id                  String   @id @default(uuid())
+  userId              String
+  eventId             String?
+  originalImagePath   String
+  // 점수/등급/능력치 — 모두 서버 계산값 (사용자 수정 불가)
+  score               Float?
+  grade               String?
+  rarity              String?
+  element             String?
+  pwr                 Int?
+  skillName           String?
+  skillPower          Int?
+  passiveName         String?
+  frame               String?
+  analysisJson        String?  // JSON 문자열 (SQLite)
+  imageHash           String?
+  perceptualHash      String?
+  scoringVersion      String?
+  status              String   @default("processing") // processing|active|hidden|reported|blocked|deleted|rank_excluded
+  isPublic            Boolean  @default(true)
+  isLeaderboardEligible Boolean @default(true)
+  reportCount         Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id])
+  event    Event?    @relation(fields: [eventId], references: [id])
+  analysis ImageAnalysis?
+  reports  Report[]
+  shareLogs ShareLog[]
+
+  @@index([eventId, score])
+  @@index([status])
+  @@index([imageHash])
+  @@index([perceptualHash])
+  @@index([userId, createdAt])
+}
+
+model ImageAnalysis {
+  id                  String   @id @default(uuid())
+  cardId              String   @unique
+  sharpnessScore      Float
+  brightnessScore     Float
+  resolutionScore     Float
+  compositionScore    Float
+  subjectScore        Float
+  colorScore          Float
+  finalScore          Float
+  detectedSubjectType String?
+  dominantColors      String?  // JSON 문자열
+  penaltyReasons      String?  // JSON 문자열
+  createdAt           DateTime @default(now())
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+}
+
+model Event {
+  id               String   @id @default(uuid())
+  title            String
+  description      String?
+  startAt          DateTime
+  endAt            DateTime
+  prizeDescription String?
+  rulesUrl         String?
+  status           String   @default("draft") // draft|active|ended
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  cards Card[]
+}
+
+model ShareLog {
+  id        String   @id @default(uuid())
+  cardId    String
+  userId    String?
+  platform  String   // kakao|instagram_story|instagram_feed|facebook|link|download
+  action    String   // click|success|fail|view|install
+  referrer  String?
+  createdAt DateTime @default(now())
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId, platform])
+}
+
+model Report {
+  id             String   @id @default(uuid())
+  cardId         String
+  reporterUserId String?
+  reason         String
+  description    String?
+  status         String   @default("open") // open|reviewing|resolved|dismissed
+  reviewedBy     String?
+  reviewedAt     DateTime?
+  createdAt      DateTime @default(now())
+
+  card     Card  @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  reporter User? @relation(fields: [reporterUserId], references: [id])
+}
