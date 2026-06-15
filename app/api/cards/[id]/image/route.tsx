@@ -8,6 +8,7 @@ import {
   ELEMENT_COLOR,
   GRADE_TONE,
   TYPE_META,
+  RARITY_MARK,
   isShiny,
   isFullArt,
   type Element,
@@ -130,6 +131,21 @@ export async function GET(
   const meta = TYPE_META[type];
   const tone = GRADE_TONE[grade];
   const accent = tone?.accent ?? "#F5C400";
+  const mk = RARITY_MARK[grade] ?? { kind: "circle" as const, count: 1, color: "#A6AEC6" };
+  const markSvg = (sz: number) => {
+    if (mk.kind === "circle")
+      return <svg width={sz} height={sz} viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill={mk.color} /></svg>;
+    if (mk.kind === "diamond")
+      return <svg width={sz} height={sz} viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12" fill={mk.color} /></svg>;
+    return <svg width={sz} height={sz} viewBox="0 0 24 24"><polygon points="12,1.5 15,9 22.5,9 16.3,13.8 18.5,21.5 12,16.8 5.5,21.5 7.7,13.8 1.5,9 9,9" fill={mk.color} /></svg>;
+  };
+  const rarityStars = (
+    <div style={f({ alignItems: "center", gap: 2 })}>
+      {Array.from({ length: mk.count }).map((_, i) => (
+        <div key={i} style={f()}>{markSvg(14)}</div>
+      ))}
+    </div>
+  );
   const hp = card.pwr ?? 60;
   const photo = await originalDataUri(card.originalImagePath);
   const name = ko ? card.user.nickname ?? "이름없는 카드" : ascii(card.user.nickname, "UNNAMED");
@@ -254,6 +270,7 @@ export async function GET(
                   <div style={f()}>{`${L.illus}. ${ascii(card.user.nickname, "AI")}`}</div>
                   <div style={f({ alignItems: "center", gap: 6 })}>
                     <div style={f()}>{`${card.id.slice(0, 3).toUpperCase()} ${String(dexNo).padStart(3, "0")}/999`}</div>
+                    {rarityStars}
                     <div style={f({ fontWeight: 700, color: accent })}>{grade}</div>
                   </div>
                 </div>
@@ -391,7 +408,7 @@ export async function GET(
             <div style={f()}>{`${L.illus}. ${ascii(card.user.nickname, "AI")}`}</div>
             <div style={f({ alignItems: "center", gap: 6 })}>
               <div style={f()}>{`${card.id.slice(0, 3).toUpperCase()} ${String(dexNo).padStart(3, "0")}/999`}</div>
-              <div style={f({ width: 12, height: 12, borderRadius: 12, background: accent })} />
+              {rarityStars}
               <div style={f({ fontWeight: 700 })}>{grade}</div>
             </div>
           </div>

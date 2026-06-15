@@ -16,16 +16,31 @@ export function isFullArt(g: Grade): boolean {
   return gradeRank(g) >= gradeRank("ASR");
 }
 
+// 공식 Scarlet & Violet 등급 용어에 정렬 (codex 리서치 + Pokemon.com 교차검증)
 export type Rarity =
-  | "Secret Rare"
-  | "Super Rare"
-  | "Special Art Rare"
-  | "Art Rare"
+  | "Hyper Rare"
+  | "Ultra Rare"
+  | "Special Illustration Rare"
+  | "Illustration Rare"
   | "Double Rare"
   | "Rare"
   | "Uncommon"
   | "Common"
   | "Base";
+
+// 공식 레어도 심볼 (등급별). kind = 도형(SVG로 렌더 — 폰트 글리프 비의존)
+export type MarkKind = "circle" | "diamond" | "star";
+export const RARITY_MARK: Record<Grade, { kind: MarkKind; count: number; color: string }> = {
+  D: { kind: "circle", count: 1, color: "#7B85A3" }, // 기본
+  C: { kind: "circle", count: 1, color: "#10101a" }, // Common ●
+  B: { kind: "diamond", count: 1, color: "#10101a" }, // Uncommon ◆
+  A: { kind: "star", count: 1, color: "#10101a" }, // Rare ★
+  R: { kind: "star", count: 2, color: "#10101a" }, // Double Rare — 2 black stars
+  AR: { kind: "star", count: 1, color: "#F5C400" }, // Illustration Rare — 1 gold star
+  ASR: { kind: "star", count: 2, color: "#F5C400" }, // Special Illustration Rare — 2 gold stars
+  SR: { kind: "star", count: 2, color: "#C8CEDB" }, // Ultra Rare — 2 silver stars
+  SSR: { kind: "star", count: 3, color: "#FFCE3A" }, // Hyper Rare — 3 gold stars
+};
 
 // 자체 속성 명칭 (포켓몬 에너지 미사용)
 export const ELEMENTS = [
@@ -84,10 +99,10 @@ export interface AnalysisResult {
 
 // 등급 매핑 테이블 (점수 → 등급/희귀도). 상위로 갈수록 희귀.
 export const GRADE_TABLE: { min: number; grade: Grade; rarity: Rarity }[] = [
-  { min: 99, grade: "SSR", rarity: "Secret Rare" },
-  { min: 96, grade: "SR", rarity: "Super Rare" },
-  { min: 92, grade: "ASR", rarity: "Special Art Rare" },
-  { min: 88, grade: "AR", rarity: "Art Rare" },
+  { min: 99, grade: "SSR", rarity: "Hyper Rare" },
+  { min: 96, grade: "SR", rarity: "Ultra Rare" },
+  { min: 92, grade: "ASR", rarity: "Special Illustration Rare" },
+  { min: 88, grade: "AR", rarity: "Illustration Rare" },
   { min: 80, grade: "R", rarity: "Double Rare" },
   { min: 70, grade: "A", rarity: "Rare" },
   { min: 58, grade: "B", rarity: "Uncommon" },
@@ -102,10 +117,10 @@ export const GRADE_TONE: Record<Grade, { label: string; accent: string }> = {
   B: { label: "Uncommon", accent: "#25E2AE" },
   A: { label: "Rare", accent: "#2DB4F2" },
   R: { label: "Double Rare", accent: "#7AD7FF" },
-  AR: { label: "Art Rare", accent: "#F5C400" },
-  ASR: { label: "Special Art Rare", accent: "#FFD42E" },
-  SR: { label: "Super Rare", accent: "#B388FF" },
-  SSR: { label: "Secret Rare", accent: "#FF7AD1" },
+  AR: { label: "Illustration Rare", accent: "#F5C400" },
+  ASR: { label: "Special Illustration Rare", accent: "#FFD42E" },
+  SR: { label: "Ultra Rare", accent: "#C8CEDB" },
+  SSR: { label: "Hyper Rare", accent: "#FFCE3A" },
 };
 
 // 속성별 색상 (DESIGN_GUIDE §7)
