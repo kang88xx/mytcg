@@ -72,14 +72,16 @@ export class HeuristicScorer implements ImageScorer {
     const color = clamp(40 + saturation * 90);
 
     // --- 가중 합산 (docs/PRD §7) ---
-    const finalScore = clamp(
+    const raw =
       sharpness * 0.25 +
-        brightness * 0.15 +
-        resolution * 0.15 +
-        composition * 0.2 +
-        subject * 0.15 +
-        color * 0.1
-    );
+      brightness * 0.15 +
+      resolution * 0.15 +
+      composition * 0.2 +
+      subject * 0.15 +
+      color * 0.1;
+    // 동적 범위 확장: 실사진이 70~90에 몰리는 현상을 분산해
+    // 대부분 C~R, 프리미엄(SR+)은 희귀하도록 (등급 분포 튜닝)
+    const finalScore = clamp((raw - 52) * 2.3);
 
     const dominantColors = [rgbToHex(dom.r, dom.g, dom.b)];
 

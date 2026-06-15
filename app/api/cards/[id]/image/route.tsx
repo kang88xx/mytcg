@@ -146,6 +146,53 @@ export async function GET(
       ))}
     </div>
   );
+
+  // 텍스처 홀로(포일 빗살) 오버레이
+  const texture = (
+    <div
+      style={f({
+        position: "absolute",
+        inset: 0,
+        backgroundImage:
+          "repeating-linear-gradient(48deg, rgba(255,255,255,.07) 0px, rgba(255,255,255,.07) 2px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 8px)",
+      })}
+    />
+  );
+
+  // ex / TAG TEAM 스타일 배지 (풀아트 등급 = ex 특수 카드)
+  const exBadge = (
+    <div
+      style={f({
+        alignItems: "center",
+        background: grade === "SSR" ? "linear-gradient(135deg,#FFE166,#F5C400)" : "linear-gradient(135deg,#ffffff,#cfd4e2)",
+        color: "#10101a",
+        fontSize: 20,
+        fontWeight: 700,
+        fontStyle: "italic",
+        padding: "0 9px",
+        borderRadius: 6,
+        boxShadow: "0 2px 6px rgba(0,0,0,.5)",
+      })}
+    >
+      ex
+    </div>
+  );
+  const tagBadge = (
+    <div
+      style={f({
+        alignItems: "center",
+        background: accent,
+        color: "#10101a",
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: 2,
+        padding: "2px 8px",
+        borderRadius: 4,
+      })}
+    >
+      TAG TEAM
+    </div>
+  );
   const hp = card.pwr ?? 60;
   const photo = await originalDataUri(card.originalImagePath);
   const name = ko ? card.user.nickname ?? "이름없는 카드" : ascii(card.user.nickname, "UNNAMED");
@@ -220,8 +267,9 @@ export async function GET(
             {/* 풀아트 배경 사진 */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={photo} alt="" width={W} height={H} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            {/* 레인보우 홀로 */}
+            {/* 레인보우 홀로 + 포일 텍스처 */}
             <div style={f({ position: "absolute", inset: 0, background: RAINBOW_FULL })} />
+            {texture}
             {/* 스파클 */}
             {sparkleField(card.id, sparkleCount)}
             {/* 상하 스크림 */}
@@ -239,10 +287,14 @@ export async function GET(
               <div style={f({ flexDirection: "column", gap: 6 })}>
                 <div style={f({ alignItems: "center", gap: 8 })}>
                   <div style={f({ fontSize: 12, color: "#fff", fontWeight: 700, background: "rgba(0,0,0,.45)", padding: "2px 8px", borderRadius: 4 })}>{stageLabel}</div>
+                  {grade === "SSR" && tagBadge}
                   {gradeBadge}
                 </div>
                 <div style={f({ justifyContent: "space-between", alignItems: "flex-end" })}>
-                  <div style={f({ fontSize: 34, fontWeight: 700, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,.8)" })}>{name}</div>
+                  <div style={f({ alignItems: "center", gap: 8 })}>
+                    <div style={f({ fontSize: 34, fontWeight: 700, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,.8)" })}>{name}</div>
+                    {exBadge}
+                  </div>
                   <div style={f({ alignItems: "center", gap: 6 })}>
                     <div style={f({ fontSize: 14, fontWeight: 700, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,.9)" })}>HP</div>
                     <div style={f({ fontSize: 32, fontWeight: 700, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,.9)" })}>{String(hp)}</div>
@@ -311,8 +363,9 @@ export async function GET(
             overflow: "hidden",
           })}
         >
-          {/* 홀로 + 스파클 (R 이상) */}
+          {/* 홀로 + 텍스처 + 스파클 (R 이상) */}
           {shiny && <div style={f({ position: "absolute", inset: 0, background: RAINBOW })} />}
+          {shiny && texture}
           {shiny && sparkleField(card.id, sparkleCount)}
 
           {/* 상단 */}

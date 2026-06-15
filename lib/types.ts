@@ -2,18 +2,20 @@
 
 export const SCORING_VERSION = "heuristic-v1";
 
-// 등급 체계 (낮음 → 높음): D C B A R AR ASR SR SSR
-export type Grade = "D" | "C" | "B" | "A" | "R" | "AR" | "ASR" | "SR" | "SSR";
-export const GRADES_ASC: Grade[] = ["D", "C", "B", "A", "R", "AR", "ASR", "SR", "SSR"];
+// 등급 체계 (낮음 → 높음, 공식 Scarlet&Violet 순서):
+// D C B A / R(Double Rare) SR(Ultra Rare) AR(Illustration Rare)
+// ASR(Special Illustration Rare) SSR(Hyper Rare)
+export type Grade = "D" | "C" | "B" | "A" | "R" | "SR" | "AR" | "ASR" | "SSR";
+export const GRADES_ASC: Grade[] = ["D", "C", "B", "A", "R", "SR", "AR", "ASR", "SSR"];
 export function gradeRank(g: Grade): number {
   return GRADES_ASC.indexOf(g);
 }
-// R 이상 = 반짝임(홀로/스파클), ASR 이상 = 풀아트 레이아웃
+// R 이상 = 반짝임(홀로/스파클), SR(Ultra Rare) 이상 = 풀아트 레이아웃
 export function isShiny(g: Grade): boolean {
   return gradeRank(g) >= gradeRank("R");
 }
 export function isFullArt(g: Grade): boolean {
-  return gradeRank(g) >= gradeRank("ASR");
+  return gradeRank(g) >= gradeRank("SR");
 }
 
 // 공식 Scarlet & Violet 등급 용어에 정렬 (codex 리서치 + Pokemon.com 교차검증)
@@ -98,15 +100,16 @@ export interface AnalysisResult {
 }
 
 // 등급 매핑 테이블 (점수 → 등급/희귀도). 상위로 갈수록 희귀.
+// 공식 순서: R < SR < AR < ASR < SSR (점수 높을수록 상위)
 export const GRADE_TABLE: { min: number; grade: Grade; rarity: Rarity }[] = [
   { min: 99, grade: "SSR", rarity: "Hyper Rare" },
-  { min: 96, grade: "SR", rarity: "Ultra Rare" },
-  { min: 92, grade: "ASR", rarity: "Special Illustration Rare" },
-  { min: 88, grade: "AR", rarity: "Illustration Rare" },
+  { min: 97, grade: "ASR", rarity: "Special Illustration Rare" },
+  { min: 93, grade: "AR", rarity: "Illustration Rare" },
+  { min: 88, grade: "SR", rarity: "Ultra Rare" },
   { min: 80, grade: "R", rarity: "Double Rare" },
-  { min: 70, grade: "A", rarity: "Rare" },
-  { min: 58, grade: "B", rarity: "Uncommon" },
-  { min: 42, grade: "C", rarity: "Common" },
+  { min: 68, grade: "A", rarity: "Rare" },
+  { min: 55, grade: "B", rarity: "Uncommon" },
+  { min: 40, grade: "C", rarity: "Common" },
   { min: 0, grade: "D", rarity: "Base" },
 ];
 
