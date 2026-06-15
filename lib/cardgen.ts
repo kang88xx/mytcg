@@ -147,9 +147,9 @@ export function generateCard(
     PASSIVE_WORD[Math.floor(rnd() * PASSIVE_WORD.length)]
   }`;
 
-  // 프레임: 속성 우선, SSS+ 는 Prism
+  // 프레임: 속성 우선, SSR 은 Prism
   const frame =
-    grade === "SSS+"
+    grade === "SSR"
       ? "Prism"
       : (["Aqua", "Shadow", "Solar", "Lunar", "Metal", "Neon"] as string[]).includes(
           element

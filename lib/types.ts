@@ -2,15 +2,30 @@
 
 export const SCORING_VERSION = "heuristic-v1";
 
-export type Grade = "SSS+" | "SSS" | "SS" | "S" | "A" | "B" | "C";
+// 등급 체계 (낮음 → 높음): D C B A R AR ASR SR SSR
+export type Grade = "D" | "C" | "B" | "A" | "R" | "AR" | "ASR" | "SR" | "SSR";
+export const GRADES_ASC: Grade[] = ["D", "C", "B", "A", "R", "AR", "ASR", "SR", "SSR"];
+export function gradeRank(g: Grade): number {
+  return GRADES_ASC.indexOf(g);
+}
+// R 이상 = 반짝임(홀로/스파클), ASR 이상 = 풀아트 레이아웃
+export function isShiny(g: Grade): boolean {
+  return gradeRank(g) >= gradeRank("R");
+}
+export function isFullArt(g: Grade): boolean {
+  return gradeRank(g) >= gradeRank("ASR");
+}
+
 export type Rarity =
-  | "Mythic"
-  | "Legendary"
-  | "Ultra Rare"
+  | "Secret Rare"
   | "Super Rare"
+  | "Special Art Rare"
+  | "Art Rare"
+  | "Double Rare"
   | "Rare"
   | "Uncommon"
-  | "Common";
+  | "Common"
+  | "Base";
 
 // 자체 속성 명칭 (포켓몬 에너지 미사용)
 export const ELEMENTS = [
@@ -67,26 +82,30 @@ export interface AnalysisResult {
   penaltyReasons: string[];
 }
 
-// 등급 매핑 테이블 (docs/PRD.md §7)
+// 등급 매핑 테이블 (점수 → 등급/희귀도). 상위로 갈수록 희귀.
 export const GRADE_TABLE: { min: number; grade: Grade; rarity: Rarity }[] = [
-  { min: 97, grade: "SSS+", rarity: "Mythic" },
-  { min: 93, grade: "SSS", rarity: "Legendary" },
-  { min: 88, grade: "SS", rarity: "Ultra Rare" },
-  { min: 80, grade: "S", rarity: "Super Rare" },
+  { min: 99, grade: "SSR", rarity: "Secret Rare" },
+  { min: 96, grade: "SR", rarity: "Super Rare" },
+  { min: 92, grade: "ASR", rarity: "Special Art Rare" },
+  { min: 88, grade: "AR", rarity: "Art Rare" },
+  { min: 80, grade: "R", rarity: "Double Rare" },
   { min: 70, grade: "A", rarity: "Rare" },
-  { min: 55, grade: "B", rarity: "Uncommon" },
-  { min: 0, grade: "C", rarity: "Common" },
+  { min: 58, grade: "B", rarity: "Uncommon" },
+  { min: 42, grade: "C", rarity: "Common" },
+  { min: 0, grade: "D", rarity: "Base" },
 ];
 
-// 등급별 디자인 톤 (DESIGN_GUIDE §4)
+// 등급별 디자인 톤. accent = 카드/배지 강조색. R+는 홀로 처리.
 export const GRADE_TONE: Record<Grade, { label: string; accent: string }> = {
-  "SSS+": { label: "Mythic", accent: "#b388ff" },
-  SSS: { label: "Legendary", accent: "#ffd54a" },
-  SS: { label: "Ultra Rare", accent: "#c0c8d8" },
-  S: { label: "Super Rare", accent: "#4ad8ff" },
-  A: { label: "Rare", accent: "#5cff9d" },
-  B: { label: "Uncommon", accent: "#9aa0b0" },
-  C: { label: "Common", accent: "#6b7280" },
+  D: { label: "Base", accent: "#56607F" },
+  C: { label: "Common", accent: "#A6AEC6" },
+  B: { label: "Uncommon", accent: "#25E2AE" },
+  A: { label: "Rare", accent: "#2DB4F2" },
+  R: { label: "Double Rare", accent: "#7AD7FF" },
+  AR: { label: "Art Rare", accent: "#F5C400" },
+  ASR: { label: "Special Art Rare", accent: "#FFD42E" },
+  SR: { label: "Super Rare", accent: "#B388FF" },
+  SSR: { label: "Secret Rare", accent: "#FF7AD1" },
 };
 
 // 속성별 색상 (DESIGN_GUIDE §7)

@@ -13,6 +13,7 @@ export default async function Home() {
       <TopBar />
       <main className="container">
         <section className="hero">
+          <div className="eyebrow">AI TRADING CARD · LEADERBOARD</div>
           <h1>
             내 사진이 <span className="grad">AI 카드</span>가 된다
           </h1>
