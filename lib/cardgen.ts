@@ -114,6 +114,29 @@ export function secondAttack(element: Element, seedKey: string, baseScore: numbe
   return { name, cost, damage };
 }
 
+// 기술 효과 설명 (결정적) — 실제 카드처럼 기술 아래 한 줄
+const ATTACK_FX_KO = [
+  "이 공격으로 상대를 기절시키면 사이드 카드를 1장 더 가져간다.",
+  "동전을 던져 앞면이 나오면 상대를 마비 상태로 만든다.",
+  "이 포켓몬에게 붙어 있는 에너지 1개당 데미지가 20씩 늘어난다.",
+  "상대 벤치 포켓몬 1마리에게 30데미지. (약점·저항력은 계산하지 않는다.)",
+  "다음 상대 턴, 이 포켓몬이 받는 데미지를 30 줄인다.",
+  "상대 배틀 포켓몬에게 붙어 있는 에너지를 1개 떼어낸다.",
+];
+const ATTACK_FX_EN = [
+  "If this attack knocks out your opponent, take 1 more Prize card.",
+  "Flip a coin. If heads, the opponent is now Paralyzed.",
+  "This attack does 20 more damage for each Energy attached to this Pokémon.",
+  "Also deals 30 damage to 1 of your opponent's Benched Pokémon.",
+  "During your opponent's next turn, this Pokémon takes 30 less damage.",
+  "Discard 1 Energy attached to your opponent's Active Pokémon.",
+];
+export function attackText(seedKey: string, idx: number, ko: boolean): string {
+  const rnd = seedFrom(seedKey + "::fx" + idx);
+  const pool = ko ? ATTACK_FX_KO : ATTACK_FX_EN;
+  return pool[Math.floor(rnd() * pool.length)];
+}
+
 // 진화 스테이지 (점수 기반) — 0:기본 1:1진화 2:2진화
 export function stageLevel(score: number): 0 | 1 | 2 {
   if (score >= 88) return 2;
