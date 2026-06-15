@@ -19,10 +19,12 @@ export async function POST(req: NextRequest) {
   const cookieId = req.cookies.get(ANON_COOKIE)?.value;
   const { userId, setCookie } = await getOrCreateAnonUser(cookieId);
 
-  // 2) 일일 쿼터
-  const quota = await checkDailyQuota(userId);
-  if (!quota.allowed) {
-    return err("RATE_LIMITED", "하루 분석 횟수(3회)를 초과했습니다.", 429);
+  // 2) 일일 쿼터 — 기본 비활성. 실서비스에서 ENABLE_DAILY_LIMIT=true 로 켠다.
+  if (process.env.ENABLE_DAILY_LIMIT === "true") {
+    const quota = await checkDailyQuota(userId);
+    if (!quota.allowed) {
+      return err("RATE_LIMITED", "하루 분석 횟수(3회)를 초과했습니다.", 429);
+    }
   }
 
   // 3) 폼 파싱
